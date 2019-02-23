@@ -68,7 +68,7 @@ class WindowFactory:
 
 class OverlayWindow:
     """Ensures unmapping of windows"""
-    SCREEN_DEPTH = 24
+    SCREEN_DEPTH = 32
 
     class Factory(WindowFactory):
         """OverlayWindows factory class"""
@@ -172,6 +172,9 @@ class OverlayWindow:
         pad = self.window.display.info.bitmap_format_scanline_pad
         unit = self.window.display.info.bitmap_format_scanline_unit
 
+        #self.window.clear_area(0, 0, 0, 0, False)
+        #self._display.flush()
+
         for placement in self._view.media.values():
             # x, y are useful names in this case
             # pylint: disable=invalid-name
@@ -189,13 +192,17 @@ class OverlayWindow:
             self._image.draw(
                 x, y, width, height,
                 image.tobytes("raw", 'BGRX', stride, 0))
+                # image.tobytes("raw", 'BGRA', stride, 0))
+            self._image.copy_to(
+                self.window.id,
+                x, y, width, height)
 
-        self._image.copy_to(
+        '''self._image.copy_to(
             self.window.id,
-            0, 0, self._width, self._height)
-        self.window.shape_rectangles(
-            Xshape.SO.Set, Xshape.SK.Bounding, 0,
-            0, 0, rectangles)
+            0, 0, self._width, self._height)'''
+        #self.window.shape_rectangles(
+        #    Xshape.SO.Set, Xshape.SK.Bounding, 0,
+        #    0, 0, rectangles)
 
         self._display.flush()
 
@@ -205,6 +212,7 @@ class OverlayWindow:
             return
 
         visual_id = get_visual_id(self._screen, OverlayWindow.SCREEN_DEPTH)
+        print("visual_id python:", visual_id)
         self._colormap = self._screen.root.create_colormap(
             visual_id, X.AllocNone)
         self.parent_window = self._display.create_resource_object(
@@ -225,7 +233,7 @@ class OverlayWindow:
             visual_id,
             background_pixmap=0,
             colormap=self._colormap,
-            background_pixel=0,
+            # background_pixel=0,
             border_pixel=0,
             event_mask=X.ExposureMask)
         self.parent_window.change_attributes(
@@ -288,6 +296,6 @@ class OverlayWindow:
 
     def _set_invisible(self):
         """Makes the window invisible."""
-        self.window.shape_rectangles(
-            Xshape.SO.Set, Xshape.SK.Bounding, 0,
-            0, 0, [])
+        pass #self.window.shape_rectangles(
+        #    Xshape.SO.Set, Xshape.SK.Bounding, 0,
+        #    0, 0, [])

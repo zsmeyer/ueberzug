@@ -26,6 +26,7 @@ static Display* display = NULL;
 
 typedef struct {
     PyObject_HEAD;
+    int visual;
     int width;
     int height;
     int buffer_size;
@@ -73,14 +74,23 @@ Image_map_shared_memory(Image *self) {
 static bool
 Image_create_shared_image(Image *self) {
     int screen = XDefaultScreen(display);
+
+    printf("search visual\n");
+    XVisualInfo vinfo;
+    if (!XMatchVisualInfo(
+        display, XDefaultScreen(display), 32, TrueColor, &vinfo)
+    ) return fprintf(stderr, "no 32 bit visual\n");
+    printf("found %ld\n", vinfo.visualid);
     // Allocate the memory needed for the XImage structure
     self->image = XShmCreateImage(
-        display, XDefaultVisual(display, screen),
-        DefaultDepth(display, screen), ZPixmap, 0,
+        display, vinfo.visual,//XDefaultVisual(display, screen),
+        32,//DefaultDepth(display, screen),
+        ZPixmap, 0,
         &self->segmentInfo, 0, 0);
 
     if (self->image) {
         self->image->data = (char*)self->segmentInfo.shmaddr;
+        memset(self->image->data, 0, self->buffer_size);
         self->image->width = self->width;
         self->image->height = self->height;
 

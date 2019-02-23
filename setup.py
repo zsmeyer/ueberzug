@@ -32,7 +32,7 @@ setuptools.setup(
     },
     ext_modules=[
         distutils.core.Extension(
-            "Xshm", ["Xshm/Xshm.c"], libraries=["X11", "Xext"]),
+            "Xshm", ["Xshm/Xshm.c"], libraries=["X11", "Xext", "Xrender"]),
     ],
 
     # Versions should comply with PEP 440:
