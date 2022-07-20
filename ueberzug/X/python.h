@@ -2,6 +2,8 @@
 #define __PYTHON_H__
 
 #ifndef __linux__
+#elif __APPLE__
+#else
 #error OS unsupported
 #endif
 
